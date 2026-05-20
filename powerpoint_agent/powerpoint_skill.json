@@ -1,0 +1,412 @@
+{
+  "tool_spec": {
+    "name": "create_powerpoint_presentation",
+    "description": "Erstellt eine PowerPoint-Präsentation im Prediger Corporate Design aus einer strukturierten JSON-Spezifikation. Verwende dieses Tool immer, wenn eine PPTX-Präsentation erstellt oder überarbeitet werden soll. Das Tool schreibt eine JSON-Datei und ruft danach pptx_generator.py auf. Alle Folien nutzen ausschließlich die Layouts aus powerpoint_master.pptx. Animationen werden grundsätzlich nicht eingesetzt.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Titel der Präsentation (nur für die interne Benennung, erscheint nicht als Folie)."
+        },
+        "output": {
+          "type": "string",
+          "description": "Dateiname der Ausgabedatei, z. B. 'quartalsbericht_q2.pptx'. Standard: <input_json_name>.pptx"
+        },
+        "slides": {
+          "type": "array",
+          "description": "Liste aller Folien in der gewünschten Reihenfolge.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "layout": {
+                "type": "string",
+                "description": "Layout-Schlüssel (siehe injected_knowledge.layouts für alle Optionen und Felder)."
+              }
+            },
+            "required": ["layout"],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": ["slides"]
+    }
+  },
+  "injected_knowledge": {
+    "tool_description": "Prediger PowerPoint Generator",
+    "template_file": "powerpoint_master.pptx",
+    "generator_script": "pptx_generator.py",
+    "invocation": "python pptx_generator.py <json_datei> [--output <ausgabe.pptx>]",
+
+    "corporate_design": {
+      "font": "Poppins (Haupt- und Textsatz)",
+      "slide_size": "33,87 cm × 19,05 cm (16:9 Widescreen)",
+      "animation_policy": "Keine Animationen verwenden. Die Vorlagedateien enthalten keine Animationen in den Layouts — neue Folien starten sauber ohne Effekte. Nur in absoluten Ausnahmefällen (z. B. interaktive Demo-Folie) kann Appear-Animation auf expliziten Wunsch hinzugefügt werden.",
+      "colors": {
+        "anthrazit":   "#2D3036",
+        "gelb":        "#F5DF4D",
+        "creme":       "#FDF8E3",
+        "orange_gelb": "#FFC000",
+        "mauve":       "#7C4C53",
+        "olive_grau":  "#80856D",
+        "hell_grau":   "#E7E6E6"
+      },
+      "design_rules": [
+        "Ausschließlich Layouts aus powerpoint_master.pptx verwenden — keine eigenen Formen, Farben oder Fonts hinzufügen.",
+        "Keine Animationen außer auf expliziten Nutzerwunsch.",
+        "Kurze, prägnante Texte — maximal 5–6 Stichpunkte pro Folie.",
+        "Für jeden Abschnitt einen Kapiteltrenner (kapitel_1 oder kapitel_2) verwenden.",
+        "Titelfolie immer als erste Folie, ggf. Abschlussfolie am Ende."
+      ]
+    },
+
+    "layouts": {
+      "titelfolie": {
+        "layout_index": 0,
+        "layout_name": "Präsentationstitel ohne Hintergrundbild",
+        "description": "Titelfolie ohne Hintergrundbild — für Präsentationsbeginn und -abschluss.",
+        "fields": {
+          "title": "string — Haupttitel der Präsentation (groß, zentriert)"
+        },
+        "example": {
+          "layout": "titelfolie",
+          "title": "Strategie 2026 — Prediger Lichtbetriebe GmbH"
+        }
+      },
+      "titelfolie_bild": {
+        "layout_index": 1,
+        "layout_name": "Präsentationstitel mit Hintergrundbild",
+        "description": "Titelfolie mit Hintergrundbild (optionales Bild im Platzhalter).",
+        "fields": {
+          "title": "string — Haupttitel",
+          "image": "string (optional) — Dateipfad zum Hintergrundbild"
+        },
+        "example": {
+          "layout": "titelfolie_bild",
+          "title": "Jahresbericht 2025",
+          "image": "fotos/header.jpg"
+        }
+      },
+      "kapitel_1": {
+        "layout_index": 2,
+        "layout_name": "Kapiteltrenner_1",
+        "description": "Abschnittstrenner mit dunklem Hintergrund — trennt thematische Blöcke.",
+        "fields": {
+          "text": "string — Kapitelüberschrift (z. B. '01 Marktanalyse')"
+        },
+        "example": {
+          "layout": "kapitel_1",
+          "text": "01 Marktanalyse"
+        }
+      },
+      "kapitel_2": {
+        "layout_index": 3,
+        "layout_name": "Kapiteltrenner_2",
+        "description": "Abschnittstrenner — alternative Variante (gelber Hintergrund).",
+        "fields": {
+          "text": "string — Kapitelüberschrift"
+        },
+        "example": {
+          "layout": "kapitel_2",
+          "text": "02 Ergebnisse"
+        }
+      },
+      "agenda": {
+        "layout_index": 4,
+        "layout_name": "Agenda",
+        "description": "Agenda-Folie mit Überschrift und Themenliste.",
+        "fields": {
+          "heading": "string (optional, Standard: 'Agenda') — Überschrift",
+          "items":   "array of strings — Agendapunkte"
+        },
+        "example": {
+          "layout": "agenda",
+          "heading": "Agenda",
+          "items": ["Marktüberblick", "Produktstrategie", "Finanzplanung", "Nächste Schritte"]
+        }
+      },
+      "inhalt": {
+        "layout_index": 5,
+        "layout_name": "Titel und Inhalt",
+        "description": "Statement-Folie mit kleiner Kategoriebezeichnung oben und großem Haupttext. Ideal für prägnante Kernaussagen oder Überschriften mit Stichpunkten.",
+        "fields": {
+          "supertitle": "string (optional) — kleine Kategoriebezeichnung über dem Haupttext",
+          "heading":    "string (optional) — große Hauptüberschrift",
+          "bullets":    "array of strings (optional) — Stichpunkte (überschreiben heading wenn beide angegeben)"
+        },
+        "notes": "heading und bullets können kombiniert werden: heading wird als erster Absatz, bullets als weitere Absätze eingefügt.",
+        "example": {
+          "layout": "inhalt",
+          "supertitle": "Unsere Vision",
+          "heading": "Licht für jeden Raum — individuell, nachhaltig, effizient.",
+          "bullets": [
+            "Maßgeschneiderte Lichtlösungen für Privat und Gewerbe",
+            "Energieeffiziente LED-Technologie mit bis zu 80 % Einsparung",
+            "Persönliche Beratung durch ausgebildete Lichtplaner"
+          ]
+        }
+      },
+      "inhalt_bild": {
+        "layout_index": 6,
+        "layout_name": "Titel, Inhalt und Bild",
+        "description": "Folie mit Text links und Bild rechts.",
+        "fields": {
+          "supertitle": "string (optional) — kleine Kategoriebezeichnung",
+          "heading":    "string (optional) — Überschrift",
+          "bullets":    "array of strings (optional) — Stichpunkte",
+          "image":      "string (optional) — Dateipfad zum Bild"
+        },
+        "example": {
+          "layout": "inhalt_bild",
+          "supertitle": "Produkt",
+          "heading": "Pendelleuchten-Serie Aurora",
+          "bullets": ["Dimmbar 1 %–100 %", "Kelvin-einstellbar 2700–6500 K", "IP44 für Feuchträume"],
+          "image": "fotos/aurora.jpg"
+        }
+      },
+      "zwei_spalten": {
+        "layout_index": 7,
+        "layout_name": "2 Inhalte",
+        "description": "Folie mit zwei Inhaltsspalten — ideal für Vergleiche.",
+        "fields": {
+          "heading":         "string — Folientitel",
+          "col1_supertitle": "string (optional) — Spalte-1-Kategorie",
+          "col1_bullets":    "array of strings — Stichpunkte Spalte 1",
+          "col2_supertitle": "string (optional) — Spalte-2-Kategorie",
+          "col2_bullets":    "array of strings — Stichpunkte Spalte 2"
+        },
+        "example": {
+          "layout": "zwei_spalten",
+          "heading": "Vorher / Nachher",
+          "col1_supertitle": "Status quo",
+          "col1_bullets": ["Konventionelle Beleuchtung", "Hohe Energiekosten", "Wartungsintensiv"],
+          "col2_supertitle": "Mit Prediger-Lösung",
+          "col2_bullets": ["LED-Vollumrüstung", "−65 % Energiekosten", "10 Jahre Garantie"]
+        }
+      },
+      "drei_spalten": {
+        "layout_index": 8,
+        "layout_name": "3 Inhalte",
+        "description": "Folie mit drei Inhaltsspalten.",
+        "fields": {
+          "heading":         "string — Folientitel",
+          "col1_supertitle": "string (optional)",
+          "col1_bullets":    "array of strings",
+          "col2_supertitle": "string (optional)",
+          "col2_bullets":    "array of strings",
+          "col3_supertitle": "string (optional)",
+          "col3_bullets":    "array of strings"
+        },
+        "example": {
+          "layout": "drei_spalten",
+          "heading": "Unsere drei Standorte",
+          "col1_supertitle": "Berlin",
+          "col1_bullets": ["Kurfürstendamm 42", "Mo–Sa 10–19 Uhr", "+49 30 123456"],
+          "col2_supertitle": "Hamburg",
+          "col2_bullets": ["Große Bleichen 30", "Mo–Sa 10–18 Uhr", "+49 40 654321"],
+          "col3_supertitle": "München",
+          "col3_bullets": ["Maximilianstr. 12", "Mo–Sa 10–19 Uhr", "+49 89 112233"]
+        }
+      },
+      "prozess": {
+        "layout_index": 9,
+        "layout_name": "Prozessablauf",
+        "description": "5-Schritte-Prozessdarstellung mit Pfeilen zwischen den Schritten. Maximal 5 Schritte.",
+        "fields": {
+          "heading": "string — Folientitel",
+          "steps": "array (max. 5) mit Objekten: { label, title, text } oder { label, title, bullets }"
+        },
+        "step_fields": {
+          "label":   "string — kurze Schrittnummer oder -bezeichnung (z. B. 'Schritt 1', '01')",
+          "title":   "string — Schrittüberschrift",
+          "text":    "string (optional) — Beschreibungstext",
+          "bullets": "array of strings (optional) — Stichpunkte (alternativ zu text)"
+        },
+        "example": {
+          "layout": "prozess",
+          "heading": "Unser Beratungsprozess",
+          "steps": [
+            { "label": "01", "title": "Erstgespräch",   "text": "Kostenlose telefonische Bedarfsanalyse" },
+            { "label": "02", "title": "Lichtplanung",   "text": "3D-Visualisierung durch Lichtplaner" },
+            { "label": "03", "title": "Angebot",        "text": "Individuelles Angebot inkl. Montage" },
+            { "label": "04", "title": "Installation",   "text": "Durch zertifizierte Fachbetriebe" },
+            { "label": "05", "title": "Nachbetreuung",  "text": "10 Jahre Service & Garantie" }
+          ]
+        }
+      },
+      "zahl_gross": {
+        "layout_index": 11,
+        "layout_name": "Zahl groß",
+        "description": "Großformatige Kennzahl — für eindrucksvolle Einzelstatistiken.",
+        "fields": {
+          "number":      "string — der Wert (z. B. '95 %', '1.200', '4,8 ★')",
+          "description": "string — Erläuterung der Kennzahl"
+        },
+        "example": {
+          "layout": "zahl_gross",
+          "number": "95 %",
+          "description": "unserer Kunden empfehlen uns weiter"
+        }
+      },
+      "vier_zahlen": {
+        "layout_index": 12,
+        "layout_name": "Vier Zahlen",
+        "description": "Vier Kennzahlen nebeneinander — für KPI-Übersichten.",
+        "fields": {
+          "numbers": "array (max. 4) mit Objekten: { value, description }"
+        },
+        "example": {
+          "layout": "vier_zahlen",
+          "numbers": [
+            { "value": "1.200+",  "description": "Hersteller im Sortiment" },
+            { "value": "65.000+", "description": "Produkte lieferbar" },
+            { "value": "60+",     "description": "Jahre Erfahrung" },
+            { "value": "4,8 ★",   "description": "Ø Kundenbewertung" }
+          ]
+        }
+      },
+      "zwei_bilder": {
+        "layout_index": 15,
+        "layout_name": "2 Bilder mit Untertitel",
+        "description": "Zwei Bilder nebeneinander mit optionalen Bildunterschriften.",
+        "fields": {
+          "heading": "string — Folientitel",
+          "images": "array (max. 2) mit Objekten: { image, caption } oder Dateipfad-strings"
+        },
+        "example": {
+          "layout": "zwei_bilder",
+          "heading": "Showroom Eindrücke",
+          "images": [
+            { "image": "fotos/showroom_1.jpg", "caption": "Pendelleuchten-Bereich" },
+            { "image": "fotos/showroom_2.jpg", "caption": "Deckenfluter-Galerie" }
+          ]
+        }
+      },
+      "drei_bilder": {
+        "layout_index": 16,
+        "layout_name": "3 Bilder mit Untertitel",
+        "description": "Drei Bilder nebeneinander mit optionalen Bildunterschriften.",
+        "fields": {
+          "heading": "string — Folientitel",
+          "images": "array (max. 3) mit Objekten: { image, caption }"
+        },
+        "example": {
+          "layout": "drei_bilder",
+          "heading": "Referenzprojekte 2025",
+          "images": [
+            { "image": "fotos/ref_hotel.jpg",   "caption": "Hotel Adlon Berlin" },
+            { "image": "fotos/ref_office.jpg",  "caption": "WeWork Hamburg" },
+            { "image": "fotos/ref_retail.jpg",  "caption": "Kaufhof München" }
+          ]
+        }
+      },
+      "bild_2_texte": {
+        "layout_index": 18,
+        "layout_name": "Bild mit 2 Texten",
+        "description": "Zentrales Bild mit zwei Textbereichen links und rechts.",
+        "fields": {
+          "heading":         "string — Folientitel",
+          "image":           "string (optional) — Dateipfad zum zentralen Bild",
+          "left_supertitle": "string (optional) — kleine Kategoriebezeichnung links",
+          "left_text":       "string — Text links",
+          "right_supertitle":"string (optional) — kleine Kategoriebezeichnung rechts",
+          "right_text":      "string — Text rechts"
+        },
+        "example": {
+          "layout": "bild_2_texte",
+          "heading": "Produkt im Fokus: Bogenlampe Luna",
+          "image": "fotos/luna.jpg",
+          "left_supertitle": "Technische Daten",
+          "left_text": "LED 2700 K · 1200 lm · dimmbar · IP20",
+          "right_supertitle": "Einsatzbereich",
+          "right_text": "Wohnzimmer, Leseecke, Hotel-Lobby"
+        }
+      },
+      "galerie_1": {
+        "layout_index": 19,
+        "layout_name": "Bildgalerie_1",
+        "description": "Bildgalerie mit 6 Fotos und optionalem Titel.",
+        "fields": {
+          "heading": "string — Folientitel",
+          "images": "array (max. 6) von Dateipfad-strings"
+        },
+        "notes": "Bildgalerien ohne Bildpfade sind als Platzhalter-Folien nutzbar."
+      },
+      "galerie_2": {
+        "layout_index": 20,
+        "layout_name": "Bildgalerie_2",
+        "description": "Bildgalerie mit 7 Fotos und optionalem Titel.",
+        "fields": {
+          "heading": "string — Folientitel",
+          "images": "array (max. 7) von Dateipfad-strings"
+        }
+      }
+    },
+
+    "workflow": {
+      "step_1": "Spezifikation als JSON-Datei schreiben (z. B. praesentation.json)",
+      "step_2": "Generator aufrufen: python pptx_generator.py praesentation.json",
+      "step_3": "Ausgabe öffnen und in PowerPoint prüfen",
+      "note": "Die Vorlage powerpoint_master.pptx muss im gleichen Verzeichnis liegen oder per --template angegeben werden."
+    },
+
+    "complete_example": {
+      "title": "Prediger Lichtbetriebe — Unternehmensvorstellung 2026",
+      "output": "unternehmensvorstellung_2026.pptx",
+      "slides": [
+        {
+          "layout": "titelfolie",
+          "title": "Prediger Lichtbetriebe GmbH\nUnternehmensvorstellung 2026"
+        },
+        {
+          "layout": "agenda",
+          "heading": "Agenda",
+          "items": ["Das Unternehmen", "Sortiment & Stärken", "Kennzahlen", "Nächste Schritte"]
+        },
+        {
+          "layout": "kapitel_1",
+          "text": "01 Das Unternehmen"
+        },
+        {
+          "layout": "inhalt",
+          "supertitle": "Seit über 60 Jahren",
+          "heading": "Ihr Spezialist für professionelle Lichtlösungen.",
+          "bullets": [
+            "Gegründet 1961 in Berlin",
+            "Drei Standorte: Berlin, Hamburg, München",
+            "Über 65.000 Produkte von 1.200+ Herstellern",
+            "Eigene Lichtplaner und Servicetechniker"
+          ]
+        },
+        {
+          "layout": "kapitel_2",
+          "text": "02 Kennzahlen"
+        },
+        {
+          "layout": "vier_zahlen",
+          "numbers": [
+            { "value": "60+",     "description": "Jahre am Markt" },
+            { "value": "65.000+", "description": "Produkte im Sortiment" },
+            { "value": "1.200+",  "description": "Markenhersteller" },
+            { "value": "95 %",    "description": "Weiterempfehlungsrate" }
+          ]
+        },
+        {
+          "layout": "prozess",
+          "heading": "Unser Beratungsprozess",
+          "steps": [
+            { "label": "01", "title": "Analyse",      "text": "Bedarfsanalyse vor Ort oder digital" },
+            { "label": "02", "title": "Konzept",      "text": "Individuelle Lichtplanung mit 3D-Visualisierung" },
+            { "label": "03", "title": "Angebot",      "text": "Transparentes Festpreisangebot" },
+            { "label": "04", "title": "Installation", "text": "Durch zertifizierte Fachbetriebe" },
+            { "label": "05", "title": "Service",      "text": "10 Jahre Garantie & Wartungsvertrag" }
+          ]
+        },
+        {
+          "layout": "titelfolie",
+          "title": "Vielen Dank für Ihre Aufmerksamkeit.\nwww.prediger.de"
+        }
+      ]
+    }
+  }
+}
