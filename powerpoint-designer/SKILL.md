@@ -1,5 +1,5 @@
 ---
-name: powerpoint-agent
+name: powerpoint-designer
 description: Erstellt PowerPoint-Präsentationen im Prediger Corporate Design aus einer natürlichsprachigen Beschreibung. Aktivieren wenn der Nutzer eine Präsentation, Folien, eine PPTX-Datei oder ein Slide-Deck erstellen möchte. Nutzt ausschließlich die Layouts aus powerpoint_master.pptx. Keine Animationen.
 license: Proprietary
 compatibility: Requires Python 3.11+ and python-pptx (pip install python-pptx). powerpoint_master.pptx must be present in the skill directory.
